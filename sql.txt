@@ -1,0 +1,249 @@
+create table author(
+	id serial not null,
+	name varchar(255) not null,
+	primary key(id)
+);
+
+create table publisher(
+	id serial not null,
+	name varchar(255) not null,
+	primary key(id)
+);
+
+create table student(
+	id serial not null,
+	name varchar(255) not null,
+	primary key(id)
+);
+
+create table book(
+	id serial not null,
+	name varchar(255) not null,
+	count int not null,
+	primary key(id)
+);
+
+create table author_book(
+	id serial not null,
+	author_id int not null,
+	book_id int not null,
+	foreign key(author_id) references author(id),
+	foreign key(book_id) references book(id)
+);
+
+create table publisher_book(
+	id serial not null,
+	publisher_id int not null,
+	book_id int not null,
+	foreign key(publisher_id) references publisher(id),
+	foreign key(book_id) references book(id)
+);
+
+create table student_book(
+	id serial not null,
+	student_id int not null,
+	book_id int not null,
+	date_out timestamp not null,
+	date_in timestamp,
+	foreign key(student_id) references student(id),
+	foreign key(book_id) references book(id)
+);
+
+insert into author(name) values
+	('Грибоедов'),
+	('Макгонигал'),
+	('Ньюпорт'),
+	('Хоровиц'),
+	('Пушкин'),
+	('Ожегов'),
+	('Шведова');
+
+insert into publisher(name) values
+	('МИФ'),
+	('ЭКСМО'),
+	('Clever'),
+	('Рыжий кот');
+
+insert into student(name) values
+	('Пётр В.А.'),
+	('Иван С.М.'),
+	('Семён У.В.'),
+	('Владимир И.Л.'),
+	('Максим Ж.В.'),
+	('Игорь У.Ф.'),
+	('Пётр В.В.');
+
+insert into book(name, count) values
+	('Горе от ума', 15),
+	('Сила воли', 1),
+	('Хватит мечтать, займись делом!', 5),
+	('Легко не будет', 0),
+	('Сказка о попе и о работнике его Балде', 23),
+	('Толковый словарь', 20);
+
+create or replace function author_id_by_name(author_name text)
+returns int
+language plpgsql
+as $$
+declare
+	author_id int;
+begin
+   select author.id into author_id from author where author.name = author_name;
+   return author_id;
+end;
+$$;
+
+create or replace function publisher_id_by_name(publisher_name text)
+returns int
+language plpgsql
+as $$
+declare
+	publisher_id int;
+begin
+   select publisher.id into publisher_id from publisher where publisher.name = publisher_name;
+   return publisher_id;
+end;
+$$;
+
+create or replace function student_id_by_name(student_name text)
+returns int
+language plpgsql
+as $$
+declare
+	student_id int;
+begin
+   select student.id into student_id from student where student.name = student_name;
+   return student_id;
+end;
+$$;
+
+create or replace function book_id_by_name(book_name text)
+returns int
+language plpgsql
+as $$
+declare
+	book_id int;
+begin
+   select book.id into book_id from book where book.name = book_name;
+   return book_id;
+end;
+$$;
+
+insert into author_book(author_id, book_id) values
+	(
+		author_id_by_name('Грибоедов'),
+		book_id_by_name('Горе от ума')
+	),
+	(
+		author_id_by_name('Макгонигал'),
+		book_id_by_name('Сила воли')
+	),
+	(
+		author_id_by_name('Ньюпорт'),
+		book_id_by_name('Хватит мечтать, займись делом!')
+	),
+	(
+		author_id_by_name('Хоровиц'),
+		book_id_by_name('Легко не будет')
+	),
+	(
+		author_id_by_name('Пушкин'),
+		book_id_by_name('Сказка о попе и о работнике его Балде')
+	),
+	(
+		author_id_by_name('Ожегов'),
+		book_id_by_name('Толковый словарь')
+	),
+	(
+		author_id_by_name('Шведова'),
+		book_id_by_name('Толковый словарь')
+	);
+
+insert into publisher_book(publisher_id, book_id) values
+	(
+		publisher_id_by_name('МИФ'),
+		book_id_by_name('Горе от ума')
+	),
+	(
+		publisher_id_by_name('ЭКСМО'),
+		book_id_by_name('Горе от ума')
+	),
+	(
+		publisher_id_by_name('Clever'),
+		book_id_by_name('Сила воли')
+	),
+	(
+		publisher_id_by_name('Clever'),
+		book_id_by_name('Хватит мечтать, займись делом!')
+	),
+	(
+		publisher_id_by_name('МИФ'),
+		book_id_by_name('Легко не будет')
+	),
+	(
+		publisher_id_by_name('Рыжий кот'),
+		book_id_by_name('Толковый словарь')
+	);
+
+insert into student_book(student_id, book_id, date_out) values
+	(
+		student_id_by_name('Пётр В.А.'),
+		book_id_by_name('Толковый словарь'),
+		'2020-03-10'
+	),
+	(
+		student_id_by_name('Пётр В.А.'),
+		book_id_by_name('Горе от ума'),
+		'2020-03-10'
+	),
+	(
+		student_id_by_name('Иван С.М.'),
+		book_id_by_name('Хватит мечтать, займись делом!'),
+		'2020-06-17'
+	),
+	(
+		student_id_by_name('Семён У.В.'),
+		book_id_by_name('Горе от ума'),
+		'2020-07-11'
+	),
+	(
+		student_id_by_name('Владимир И.Л.'),
+		book_id_by_name('Горе от ума'),
+		'2020-12-12'
+	),
+	(
+		student_id_by_name('Максим Ж.В.'),
+		book_id_by_name('Легко не будет'),
+		'2021-01-16'
+	),
+	(
+		student_id_by_name('Игорь У.Ф.'),
+		book_id_by_name('Сказка о попе и о работнике его Балде'),
+		'2021-02-01'
+	),
+	(
+		student_id_by_name('Пётр В.В.'),
+		book_id_by_name('Горе от ума'),
+		'2021-02-13'
+	),
+	(
+		student_id_by_name('Игорь У.Ф.'),
+		book_id_by_name('Горе от ума'),
+		'2021-02-21'
+	),
+	(
+		student_id_by_name('Иван С.М.'),
+		book_id_by_name('Горе от ума'),
+		'2021-03-15'
+	);
+
+-- most popular author in a year
+select author.name from author
+	join author_book
+		on author.id = author_book.author_id
+	join student_book
+		on author_book.book_id = student_book.book_id
+		and localtimestamp - student_book.date_out < '1 year'
+	group by author.name
+	order by count(author.name) desc 
+	limit 1;
